@@ -22,9 +22,10 @@ func New(input string) *Lexer {
 func (l *Lexer) NextToken() *token.Token {
 	var t *token.Token
 
+	l.skipWhitespaces()
 	switch l.currentChar {
 	case EOF_NUMBER: //NIL
-		t = &token.Token{Type: token.EOF, Literal: ""}
+		return &token.Token{Type: token.EOF, Literal: ""}
 	case ',':
 		t = token.New(token.COMMA, l.currentChar)
 	case ';':
@@ -42,10 +43,16 @@ func (l *Lexer) NextToken() *token.Token {
 	case '+':
 		t = token.New(token.PLUS, l.currentChar)
 	default:
-		t = l.processUnknowSymbol()
+		return l.processUnknowSymbol()
 	}
 	l.readChar()
 	return t
+}
+
+func (l *Lexer) skipWhitespaces() {
+	for l.currentChar == ' ' || l.currentChar == '\t' || l.currentChar == '\n' || l.currentChar == '\r' {
+		l.readChar()
+	}
 }
 
 func (l *Lexer) processUnknowSymbol() *token.Token {
@@ -71,7 +78,8 @@ func (l *Lexer) processNumber() *token.Token {
 	for l.isCurrentCharANumber() {
 		l.readChar()
 	}
-	return token.NewTokenWithLiteral(token.INT, l.input[position:l.currentPositionInsideTheInput])
+	literal := l.input[position:l.currentPositionInsideTheInput]
+	return token.NewTokenWithLiteral(token.INT, literal)
 }
 
 func (l *Lexer) processIdentifier() *token.Token {
@@ -79,7 +87,9 @@ func (l *Lexer) processIdentifier() *token.Token {
 	for l.isCurrentCharALetter() || l.isCurrentCharANumber() {
 		l.readChar()
 	}
-	return token.NewTokenWithLiteral(token.INT, l.input[position:l.currentPositionInsideTheInput])
+	finalWord := string(l.input[position:l.currentPositionInsideTheInput])
+	tokenType := token.GenerateTokenForWord(finalWord)
+	return token.NewTokenWithLiteral(tokenType, finalWord)
 }
 
 func (l *Lexer) readChar() {

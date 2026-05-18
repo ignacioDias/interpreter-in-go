@@ -4,16 +4,7 @@ import (
 	"interpreter/src/monkey/token"
 )
 
-//ASCII
-
-const REPRESENTATION_FOR_NUMBER_ZERO = 48
-const REPRESENTATION_FOR_NUMBER_NINE = 57
-
-const REPRESENTATION_FOR_CAPITAL_A = 65
-const REPRESENTATION_FOR_CAPITAL_Z = 90
-
-const REPRESENTATION_FOR_LOWER_A = 97
-const REPRESENTATION_FOR_LOWER_Z = 122
+const EOF_NUMBER = 0
 
 type Lexer struct {
 	input                         string
@@ -32,7 +23,7 @@ func (l *Lexer) NextToken() *token.Token {
 	var t *token.Token
 
 	switch l.currentChar {
-	case 0: //NIL
+	case EOF_NUMBER: //NIL
 		t = &token.Token{Type: token.EOF, Literal: ""}
 	case ',':
 		t = token.New(token.COMMA, l.currentChar)
@@ -57,6 +48,40 @@ func (l *Lexer) NextToken() *token.Token {
 	return t
 }
 
+func (l *Lexer) processUnknowSymbol() *token.Token {
+	if l.isCurrentCharANumber() {
+		return l.processNumber()
+	} else if l.isCurrentCharALetter() {
+		return l.processIdentifier()
+	} else {
+		return token.New(token.ILLEGAL, l.currentChar)
+	}
+}
+
+func (l *Lexer) isCurrentCharALetter() bool {
+	return 'a' <= l.currentChar && l.currentChar <= 'z' || 'A' <= l.currentChar && l.currentChar <= 'Z' || l.currentChar == '_'
+}
+
+func (l *Lexer) isCurrentCharANumber() bool {
+	return l.currentChar >= '0' && l.currentChar <= '9'
+}
+
+func (l *Lexer) processNumber() *token.Token {
+	position := l.currentPositionInsideTheInput
+	for l.isCurrentCharANumber() {
+		l.readChar()
+	}
+	return token.NewTokenWithLiteral(token.INT, l.input[position:l.currentPositionInsideTheInput])
+}
+
+func (l *Lexer) processIdentifier() *token.Token {
+	position := l.currentPositionInsideTheInput
+	for l.isCurrentCharALetter() || l.isCurrentCharANumber() {
+		l.readChar()
+	}
+	return token.NewTokenWithLiteral(token.INT, l.input[position:l.currentPositionInsideTheInput])
+}
+
 func (l *Lexer) readChar() {
 	l.updateCurrentChar()
 	l.updatePositions()
@@ -64,7 +89,7 @@ func (l *Lexer) readChar() {
 
 func (l *Lexer) updateCurrentChar() {
 	if l.nextPositionToRead >= len(l.input) {
-		l.currentChar = 0
+		l.currentChar = EOF_NUMBER
 	} else {
 		l.currentChar = l.input[l.nextPositionToRead]
 	}
@@ -73,28 +98,4 @@ func (l *Lexer) updateCurrentChar() {
 func (l *Lexer) updatePositions() {
 	l.currentPositionInsideTheInput = l.nextPositionToRead
 	l.nextPositionToRead += 1
-}
-
-func (l *Lexer) processUnknowSymbol() *token.Token {
-	if l.isCurrentCharANumber() {
-		return l.processNumber()
-	} else if l.isCurrentCharALetter() {
-		return l.processWord()
-	} else {
-		return token.New(token.ILLEGAL, l.currentChar)
-	}
-}
-
-func (l *Lexer) isCurrentCharALetter() bool {
-	var isLowercaseLetter = l.currentChar >= REPRESENTATION_FOR_LOWER_A || l.currentChar <= REPRESENTATION_FOR_LOWER_Z
-	var isUppercaseLetter = l.currentChar >= REPRESENTATION_FOR_CAPITAL_A || l.currentChar <= REPRESENTATION_FOR_CAPITAL_Z
-	return isLowercaseLetter || isUppercaseLetter
-}
-
-func (l *Lexer) isCurrentCharANumber() bool {
-	return l.currentChar >= REPRESENTATION_FOR_NUMBER_ZERO && l.currentChar <= REPRESENTATION_FOR_NUMBER_NINE
-}
-
-func (l *Lexer) processNumber() *token.Token {
-
 }

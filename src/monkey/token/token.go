@@ -35,3 +35,7 @@ const (
 func New(tokenType TokenType, char byte) *Token {
 	return &Token{Type: tokenType, Literal: string(char)}
 }
+
+func NewTokenWithLiteral(tokenType TokenType, str string) *Token {
+	return &Token{Type: tokenType, Literal: str}
+}

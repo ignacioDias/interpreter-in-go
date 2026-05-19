@@ -25,7 +25,7 @@ func New(in io.Reader, out io.Writer) *REPL {
 func (r *REPL) Start() {
 	scanner := bufio.NewScanner(r.in)
 	for {
-		fmt.Printf(PROMPT)
+		r.out.Write([]byte(PROMPT))
 		scanned := scanner.Scan()
 		if !scanned {
 			return
@@ -33,7 +33,8 @@ func (r *REPL) Start() {
 		line := scanner.Text()
 		l := lexer.New(line)
 		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Printf("%+v\n", tok)
+			output := fmt.Sprintf("%+v\n", tok)
+			r.out.Write([]byte(output))
 		}
 	}
 }

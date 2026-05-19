@@ -10,7 +10,7 @@ type Lexer struct {
 	input                         string
 	currentPositionInsideTheInput int
 	nextPositionToRead            int
-	currentChar                   byte //same as input[currentPositionInsideTheInput]
+	currentChar                   byte
 }
 
 func New(input string) *Lexer {
@@ -21,10 +21,10 @@ func New(input string) *Lexer {
 
 func (l *Lexer) NextToken() *token.Token {
 	var t *token.Token
-
 	l.skipWhitespaces()
+
 	switch l.currentChar {
-	case EOF_NUMBER: //NIL
+	case EOF_NUMBER:
 		return &token.Token{Type: token.EOF, Literal: ""}
 	case ',':
 		t = token.New(token.COMMA, l.currentChar)
@@ -38,10 +38,23 @@ func (l *Lexer) NextToken() *token.Token {
 		t = token.New(token.LBRACE, l.currentChar)
 	case '}':
 		t = token.New(token.RBRACE, l.currentChar)
-	case '=':
-		t = token.New(token.ASSIGN, l.currentChar)
 	case '+':
 		t = token.New(token.PLUS, l.currentChar)
+	case '-':
+		t = token.New(token.MINUS, l.currentChar)
+	case '<':
+		t = token.New(token.LT, l.currentChar)
+	case '>':
+		t = token.New(token.GT, l.currentChar)
+	case '*':
+		t = token.New(token.ASTERISK, l.currentChar)
+	case '/':
+		t = token.New(token.SLASH, l.currentChar)
+
+	case '!':
+		return l.processBangSign()
+	case '=':
+		return l.processAsignSign()
 	default:
 		return l.processUnknowSymbol()
 	}
@@ -53,6 +66,24 @@ func (l *Lexer) skipWhitespaces() {
 	for l.currentChar == ' ' || l.currentChar == '\t' || l.currentChar == '\n' || l.currentChar == '\r' {
 		l.readChar()
 	}
+}
+
+func (l *Lexer) processBangSign() *token.Token {
+	l.readChar()
+	if l.currentChar == '=' {
+		l.readChar()
+		return token.NewTokenWithLiteral(token.NOT_EQ, "!=")
+	}
+	return token.New(token.BANG, '!')
+}
+
+func (l *Lexer) processAsignSign() *token.Token {
+	l.readChar()
+	if l.currentChar == '=' {
+		l.readChar()
+		return token.NewTokenWithLiteral(token.EQ, "==")
+	}
+	return token.New(token.ASSIGN, '=')
 }
 
 func (l *Lexer) processUnknowSymbol() *token.Token {

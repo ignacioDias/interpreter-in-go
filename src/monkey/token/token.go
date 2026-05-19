@@ -14,8 +14,6 @@ const (
 	// Identifiers + literals
 	IDENT = "IDENT" // names for vars, func,...
 	INT   = "INT"   // 1343456
-	TRUE  = "TRUE"
-	FALSE = "FALSE"
 	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"
@@ -38,14 +36,21 @@ const (
 	// Keywords
 	FUNCTION = "FUNCTION"
 	VAR      = "VAR"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
 	IF       = "IF"
-	RETURN   = "RETURN"
 	ELSE     = "ELSE"
+	RETURN   = "RETURN"
 )
 
 var keywords = map[string]TokenType{
-	"fn":  FUNCTION,
-	"var": VAR,
+	"fn":     FUNCTION,
+	"var":    VAR,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
 }
 
 func New(tokenType TokenType, char byte) *Token {

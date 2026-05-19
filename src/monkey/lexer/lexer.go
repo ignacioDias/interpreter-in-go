@@ -53,7 +53,7 @@ func (l *Lexer) NextToken() *token.Token {
 	case '!':
 		return l.processBangSign()
 	case '=':
-		return l.processAsignSign()
+		return l.processAssignSign()
 	default:
 		return l.processUnknowSymbol()
 	}
@@ -76,7 +76,7 @@ func (l *Lexer) processBangSign() *token.Token {
 	return token.New(token.BANG, '!')
 }
 
-func (l *Lexer) processAsignSign() *token.Token {
+func (l *Lexer) processAssignSign() *token.Token {
 	l.readChar()
 	if l.currentChar == '=' {
 		l.readChar()

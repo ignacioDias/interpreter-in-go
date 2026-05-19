@@ -10,8 +10,20 @@ import (
 
 const PROMPT = ">> "
 
-func Start(in io.Reader, out io.Writer) {
-	scanner := bufio.NewScanner(in)
+type REPL struct {
+	in  io.Reader
+	out io.Writer
+}
+
+func New(in io.Reader, out io.Writer) *REPL {
+	return &REPL{
+		in:  in,
+		out: out,
+	}
+}
+
+func (r *REPL) Start() {
+	scanner := bufio.NewScanner(r.in)
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()

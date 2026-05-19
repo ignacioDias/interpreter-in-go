@@ -8,5 +8,6 @@ import (
 
 func main() {
 	fmt.Println("Welcome to Monkey interpreter, type commands:")
-	repl.Start(os.Stdin, os.Stdout)
+	repl := repl.New(os.Stdin, os.Stdout)
+	repl.Start()
 }

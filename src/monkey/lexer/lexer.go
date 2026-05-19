@@ -50,7 +50,6 @@ func (l *Lexer) NextToken() *token.Token {
 		t = token.New(token.ASTERISK, l.currentChar)
 	case '/':
 		t = token.New(token.SLASH, l.currentChar)
-
 	case '!':
 		return l.processBangSign()
 	case '=':
